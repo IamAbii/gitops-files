@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend-app
-          image: abhilash2/frontend-app:1.0.0-10
+          image: abhilash2/frontend-app:1.0.0-11
           resources:
             limits:
               memory: "256Mi"
