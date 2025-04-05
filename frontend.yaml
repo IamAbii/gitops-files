@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend-app
-          image: abhilash2/frontend-app:1.0.0-7
+          image: abhilash2/frontend-app:1.0.0-8
           resources:
             limits:
               memory: "256Mi"
@@ -27,7 +27,7 @@ kind: Service
 metadata:
   name: frontend-app-service
   labels:
-    app: frontend-app
+    app: frontend-app 
 spec:
   selector:
     app: frontend-app
