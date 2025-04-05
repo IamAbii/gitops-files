@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend-app
-          image: abhilash2/backend-app:1.0.0-7
+          image: abhilash2/backend-app:1.0.0-8
           resources:
             limits:
               memory: "256Mi"
@@ -26,12 +26,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-app-service
-  labels:
-    app: backend-app
 spec:
   selector:
     app: backend-app
   ports:
-    - port: 5000
+    - protocol: TCP
+      port: 5000
       targetPort: 5000
   type: ClusterIP
