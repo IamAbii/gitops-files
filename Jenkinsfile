@@ -1,7 +1,10 @@
 pipeline {
     agent { label "Jenkins-Agent" }
+
     environment {
-              APP_NAME = "register-app-pipeline"
+        FRONTEND_APP_NAME = "abhilash2/frontend-app"
+        BACKEND_APP_NAME  = "abhilash2/backend-app"
+        IMAGE_TAG         = "1.0.0-${BUILD_NUMBER}" // example dynamic tag
     }
 
     stages {
@@ -11,35 +14,42 @@ pipeline {
             }
         }
 
-        stage("Checkout from SCM") {
-               steps {
-                   git branch: 'main', credentialsId: 'github', url: 'https://github.com/IamAbii/gitops-files.git'
-               }
+        stage("Checkout from GitHub") {
+            steps {
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/IamAbii/gitops-files.git'
+            }
         }
 
-        stage("Update the Deployment Tags") {
+        stage("Update Frontend Deployment Tag") {
             steps {
                 sh """
-                   cat deployment.yaml
-                   sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
-                   cat deployment.yaml
+                echo "Updating frontend.yaml with ${FRONTEND_APP_NAME}:${IMAGE_TAG}"
+                sed -i 's|${FRONTEND_APP_NAME}:.*|${FRONTEND_APP_NAME}:${IMAGE_TAG}|g' frontend.yaml
                 """
             }
         }
 
-        stage("Push the changed deployment file to Git") {
+        stage("Update Backend Deployment Tag") {
             steps {
                 sh """
-                   git config --global user.name "IamAbii"
-                   git config --global user.email "abhihasankar2@gmail.com"
-                   git add deployment.yaml
-                   git commit -m "Updated Deployment Manifest"
+                echo "Updating backend.yaml with ${BACKEND_APP_NAME}:${IMAGE_TAG}"
+                sed -i 's|${BACKEND_APP_NAME}:.*|${BACKEND_APP_NAME}:${IMAGE_TAG}|g' backend.yaml
+                """
+            }
+        }
+
+        stage("Push Updated Manifests to GitHub") {
+            steps {
+                sh """
+                git config --global user.name "IamAbii"
+                git config --global user.email "abhihasankar2@gmail.com"
+                git add frontend.yaml backend.yaml
+                git commit -m "Updated frontend/backend image to ${IMAGE_TAG}"
                 """
                 withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
-                  sh "git push https://github.com/IamAbii/gitops-files.git main"
+                    sh "git push https://github.com/IamAbii/gitops-files.git main"
                 }
             }
         }
-      
     }
 }
