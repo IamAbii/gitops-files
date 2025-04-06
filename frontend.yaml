@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: frontend-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: frontend-app
   template:
     metadata:
       labels:
-        app: frontend
+        app: frontend-app
     spec:
       containers:
-        - name: frontend
+        - name: frontend-container
           image: abhilash2/frontend-app:1.0.0-16
           ports:
             - containerPort: 80
@@ -21,11 +21,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: frontend-app-service
 spec:
-  type: LoadBalancer
   selector:
-    app: frontend
+    app: frontend-app
   ports:
-    - port: 80
+    - protocol: TCP
+      port: 80
       targetPort: 80
+  type: LoadBalancer
