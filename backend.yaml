@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-app-deployment
+  name: backend-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend-app
@@ -13,8 +13,8 @@ spec:
         app: backend-app
     spec:
       containers:
-        - name: backend
-          image: abhilash2/backend-app:1.0.0-16
+        - name: backend-container
+          image: abhilash2/backend-app:1.0.0-17
           ports:
             - containerPort: 5000
 ---
@@ -23,9 +23,10 @@ kind: Service
 metadata:
   name: backend-app-service
 spec:
-  type: ClusterIP
   selector:
     app: backend-app
   ports:
-    - port: 5000
+    - protocol: TCP
+      port: 5000
       targetPort: 5000
+  type: ClusterIP
