@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend-container
-          image: abhilash2/backend-app:1.0.0-17
+          image: abhilash2/backend-app:1.0.0-18
           ports:
             - containerPort: 5000
 ---
@@ -24,9 +24,8 @@ metadata:
   name: backend-app-service
 spec:
   selector:
-    app: backend-app
+    app: backend
   ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
+  - port: 5000
+    targetPort: 5000
   type: ClusterIP
