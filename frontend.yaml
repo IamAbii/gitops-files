@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend-container
-          image: abhilash2/frontend-app:1.0.0-16
+          image: abhilash2/frontend-app:1.0.0-17
           ports:
             - containerPort: 80
 ---
