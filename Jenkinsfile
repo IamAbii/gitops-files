@@ -4,12 +4,12 @@ pipeline {
         FRONTEND_IMAGE = "abhilash2/frontend-app"
         BACKEND_IMAGE  = "abhilash2/backend-app"
         GIT_REPO_URL = "https://github.com/IamAbii/gitops-files.git"
-        GIT_CREDENTIALS_ID = "github-token"  // This should matche to your actual credentials ID 
+        GIT_CREDENTIALS_ID = "github-token"
         GIT_USER = "IamAbii"
         GIT_EMAIL = "abhihasankar2@gmail.com"
     }
     parameters {
-        string(name: 'IMAGE_TAG', defaultValue: '', description: 'Docker image tag to deploy')
+        string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy (format: 1.0.0-BUILD_NUMBER)')
     }
     stages {
         stage("Validate Parameters") {
