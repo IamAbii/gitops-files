@@ -4,7 +4,6 @@ pipeline {
         FRONTEND_IMAGE = "abhilash2/frontend-app"
         BACKEND_IMAGE  = "abhilash2/backend-app"
         GIT_REPO_URL = "https://github.com/IamAbii/gitops-files.git"
-        GIT_CREDENTIALS_ID = "github-token"
         GIT_USER = "IamAbii"
         GIT_EMAIL = "abhihasankar2@gmail.com"
     }
@@ -29,7 +28,13 @@ pipeline {
         }
         stage("Checkout GitOps Repo") {
             steps {
-                git branch: 'main', credentialsId: "${GIT_CREDENTIALS_ID}", url: "${GIT_REPO_URL}"
+                // Using withCredentials to authenticate git clone
+                withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
+                    sh """
+                        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/IamAbii/gitops-files.git .
+                        git checkout main
+                    """
+                }
             }
         }
         stage("Update Frontend Deployment Tag") {
@@ -66,10 +71,21 @@ pipeline {
                     git config --global user.name "${GIT_USER}"
                     git config --global user.email "${GIT_EMAIL}"
                     git add frontend.yaml backend.yaml
-                    git diff --cached --exit-code || git commit -m "Updated image tags to ${params.IMAGE_TAG}"
                 """
-                withCredentials([gitUsernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", gitToolName: 'Default')]) {
+                
+                // Only commit if there are changes
+                sh """
+                    if git diff --cached --exit-code; then
+                        echo "No changes to commit"
+                    else
+                        git commit -m "Updated image tags to ${params.IMAGE_TAG}"
+                    fi
+                """
+                
+                // Push using the token credential
+                withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
                     sh """
+                        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/IamAbii/gitops-files.git
                         echo "Pushing changes to repository with tag ${params.IMAGE_TAG}..."
                         git push origin main
                     """
