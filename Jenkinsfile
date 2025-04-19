@@ -28,6 +28,7 @@ pipeline {
         }
         stage("Checkout GitOps Repo") {
             steps {
+                // Using withCredentials to authenticate git clone
                 withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
                     sh """
                         git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/IamAbii/gitops-files.git .
@@ -73,14 +74,13 @@ pipeline {
                 """
                 
                 // Only commit if there are changes
-                script {
-                    def hasChanges = sh(script: 'git diff --cached --exit-code || echo "has-changes"', returnStdout: true).trim()
-                    if (hasChanges == "has-changes") {
-                        sh "git commit -m 'Updated image tags to ${params.IMAGE_TAG}'"
-                    } else {
+                sh """
+                    if git diff --cached --exit-code; then
                         echo "No changes to commit"
-                    }
-                }
+                    else
+                        git commit -m "Updated image tags to ${params.IMAGE_TAG}"
+                    fi
+                """
                 
                 // Push using the token credential
                 withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
