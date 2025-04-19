@@ -29,15 +29,22 @@ pipeline {
 
         stage("Update Frontend Deployment Tag") {
             steps {
-                sh """
-                    echo "Before update - frontend.yaml"
-                    cat frontend.yaml
+                script {
+                    // Make sure we have a valid IMAGE_TAG
+                    if (params.IMAGE_TAG == null || params.IMAGE_TAG.trim() == '') {
+                        error "IMAGE_TAG parameter is missing or empty"
+                    }
                     
-                    sed -i "s|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${params.IMAGE_TAG}|g" frontend.yaml
+                    sh """
+                        echo "Before update - frontend.yaml"
+                        cat frontend.yaml
+                        
+                        sed -i 's|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${params.IMAGE_TAG}|g' frontend.yaml
 
-                    echo "After update - frontend.yaml"
-                    cat frontend.yaml
-                """
+                        echo "After update - frontend.yaml"
+                        cat frontend.yaml
+                    """
+                }
             }
         }
 
@@ -47,7 +54,7 @@ pipeline {
                     echo "Before update - backend.yaml"
                     cat backend.yaml
                     
-                    sed -i "s|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${params.IMAGE_TAG}|g" backend.yaml
+                    sed -i 's|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${params.IMAGE_TAG}|g' backend.yaml
 
                     echo "After update - backend.yaml"
                     cat backend.yaml
@@ -63,8 +70,12 @@ pipeline {
                     git add frontend.yaml backend.yaml
                     git commit -m "Updated image tags to ${params.IMAGE_TAG}"
                 """
-                withCredentials([gitUsernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", gitToolName: 'Default')]) {
-                    sh 'git push https://github.com/IamAbii/gitops-files.git main'
+                
+                withCredentials([usernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh """
+                        git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/IamAbii/gitops-files.git
+                        git push origin main
+                    """
                 }
             }
         }
