@@ -10,6 +10,10 @@ pipeline {
         GIT_EMAIL = "abhihasankar2@gmail.com"
     }
 
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+    }
+
     stages {
         stage("Cleanup Workspace") {
             steps {
@@ -27,12 +31,12 @@ pipeline {
             steps {
                 sh """
                     echo "Before update - frontend.yaml"
-                    cat gitops-files/frontend.yaml
+                    cat frontend.yaml
                     
-                    sed -i "s|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${IMAGE_TAG}|g" gitops-files/frontend.yaml
+                    sed -i "s|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${params.IMAGE_TAG}|g" frontend.yaml
 
                     echo "After update - frontend.yaml"
-                    cat gitops-files/frontend.yaml
+                    cat frontend.yaml
                 """
             }
         }
@@ -41,12 +45,12 @@ pipeline {
             steps {
                 sh """
                     echo "Before update - backend.yaml"
-                    cat gitops-files/backend.yaml
+                    cat backend.yaml
                     
-                    sed -i "s|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${IMAGE_TAG}|g" gitops-files/backend.yaml
+                    sed -i "s|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${params.IMAGE_TAG}|g" backend.yaml
 
                     echo "After update - backend.yaml"
-                    cat gitops-files/backend.yaml
+                    cat backend.yaml
                 """
             }
         }
@@ -56,8 +60,8 @@ pipeline {
                 sh """
                     git config --global user.name "${GIT_USER}"
                     git config --global user.email "${GIT_EMAIL}"
-                    git add gitops-files/frontend.yaml gitops-files/backend.yaml
-                    git commit -m "Updated image tags to ${IMAGE_TAG}"
+                    git add frontend.yaml backend.yaml
+                    git commit -m "Updated image tags to ${params.IMAGE_TAG}"
                 """
                 withCredentials([gitUsernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", gitToolName: 'Default')]) {
                     sh 'git push https://github.com/IamAbii/gitops-files.git main'
