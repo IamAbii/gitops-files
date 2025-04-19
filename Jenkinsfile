@@ -5,7 +5,7 @@ pipeline {
         FRONTEND_IMAGE = "abhilash2/frontend-app"
         BACKEND_IMAGE  = "abhilash2/backend-app"
         GIT_REPO_URL = "https://github.com/IamAbii/gitops-files.git"
-        GIT_CREDENTIALS_ID = "github"
+        GIT_CREDENTIALS_ID = "github-token" // Your new credential ID here
         GIT_USER = "IamAbii"
         GIT_EMAIL = "abhihasankar2@gmail.com"
     }
@@ -30,7 +30,6 @@ pipeline {
         stage("Update Frontend Deployment Tag") {
             steps {
                 script {
-                    // Make sure we have a valid IMAGE_TAG
                     if (params.IMAGE_TAG == null || params.IMAGE_TAG.trim() == '') {
                         error "IMAGE_TAG parameter is missing or empty"
                     }
@@ -71,11 +70,10 @@ pipeline {
                     git commit -m "Updated image tags to ${params.IMAGE_TAG}"
                 """
                 
-                withCredentials([usernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh """
-                        git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/IamAbii/gitops-files.git
-                        git push origin main
-                    """
+                withCredentials([string(credentialsId: "${GIT_CREDENTIALS_ID}", variable: 'TOKEN')]) {
+                    sh '''
+                        git push https://oauth2:${TOKEN}@github.com/IamAbii/gitops-files.git main
+                    '''
                 }
             }
         }
