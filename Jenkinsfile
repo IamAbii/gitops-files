@@ -10,6 +10,10 @@ pipeline {
         GIT_EMAIL = "abhihasankar2@gmail.com"
     }
 
+    parameters {
+        string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy')
+    }
+
     stages {
         stage("Cleanup Workspace") {
             steps {
@@ -29,7 +33,7 @@ pipeline {
                     echo "Before update - frontend.yaml"
                     cat frontend.yaml
                     
-                    sed -i "s|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${IMAGE_TAG}|g" frontend.yaml
+                    sed -i "s|${FRONTEND_IMAGE}:.*|${FRONTEND_IMAGE}:${params.IMAGE_TAG}|g" frontend.yaml
 
                     echo "After update - frontend.yaml"
                     cat frontend.yaml
@@ -43,7 +47,7 @@ pipeline {
                     echo "Before update - backend.yaml"
                     cat backend.yaml
                     
-                    sed -i "s|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${IMAGE_TAG}|g" backend.yaml
+                    sed -i "s|${BACKEND_IMAGE}:.*|${BACKEND_IMAGE}:${params.IMAGE_TAG}|g" backend.yaml
 
                     echo "After update - backend.yaml"
                     cat backend.yaml
@@ -57,7 +61,7 @@ pipeline {
                     git config --global user.name "${GIT_USER}"
                     git config --global user.email "${GIT_EMAIL}"
                     git add frontend.yaml backend.yaml
-                    git commit -m "Updated image tags to ${IMAGE_TAG}"
+                    git commit -m "Updated image tags to ${params.IMAGE_TAG}"
                 """
                 withCredentials([gitUsernamePassword(credentialsId: "${GIT_CREDENTIALS_ID}", gitToolName: 'Default')]) {
                     sh 'git push https://github.com/IamAbii/gitops-files.git main'
