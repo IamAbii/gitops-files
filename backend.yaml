@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: abhilash2/backend-app:1.0.0-53
+        image: abhilash2/backend-app:1.0.0-54
         ports:
         - containerPort: 5000
 ---
