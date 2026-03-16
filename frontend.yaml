@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: abhilash2/frontend-app:1.0.0-1
+        image: abhilash2/frontend-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
