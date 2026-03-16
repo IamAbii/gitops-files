@@ -45,7 +45,6 @@ spec:
             cpu: "500m"
 
 ---
-# Backend Service (ClusterIP)
 apiVersion: v1
 kind: Service
 metadata:
