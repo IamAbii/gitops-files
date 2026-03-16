@@ -1,7 +1,13 @@
+---
+# Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-app
+  name: backend-deployment
+  namespace: devops-app
+  labels:
+    app: backend
+    version: v1
 spec:
   replicas: 2
   selector:
@@ -14,19 +20,46 @@ spec:
     spec:
       containers:
       - name: backend
-        image: abhilash2/backend-app:1.0.0-54
+        image: abhilash2/backend-app:1.0.0-1
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+
 ---
+# Backend Service (ClusterIP)
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-app-service
+  name: backend-service
+  namespace: devops-app
+  labels:
+    app: backend
 spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
   selector:
     app: backend
-  ports:
-    - protocol: TCP
-      port: 80           # External port
-      targetPort: 5000   # Flask app port
-  type: LoadBalancer     # So it's accessible by browser
