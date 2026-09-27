@@ -29,7 +29,7 @@ pipeline {
         stage("Checkout GitOps Repo") {
             steps {
                 // Using withCredentials to authenticate git clone
-                withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
+                withCredentials([string(credentialsId: 'github', variable: 'github')]) {
                     sh """
                         git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/IamAbii/gitops-files.git .
                         git checkout main
@@ -83,7 +83,7 @@ pipeline {
                 """
                 
                 // Push using the token credential
-                withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
+                withCredentials([string(credentialsId: 'github', variable: 'github')]) {
                     sh """
                         git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/IamAbii/gitops-files.git
                         echo "Pushing changes to repository with tag ${params.IMAGE_TAG}..."
